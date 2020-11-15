@@ -1,5 +1,8 @@
 ﻿﻿using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Text;
+using System.Diagnostics;
 
 public class ObjectiveReachTargets : Objective
 {
@@ -13,12 +16,41 @@ public class ObjectiveReachTargets : Objective
     [Header("Notification")]
     [Tooltip("Start sending notification about remaining pickups when this amount of pickups is left")]
     public int notificationPickupsRemainingThreshold = 1;
-    
-    
+
+    [Header("Display Message")]
+    [Tooltip("GameObject that holds display message to trigger when an blockade is destroyed")]
+    public GameObject displayObject = null;
+
+
+    [Header("Destroy at Target Reached")]
+    [Tooltip("Destroy Gameobject below when there at this many targets remaining")]
+    public List<int> Remaining_Targets = new List<int>();
+
+    [Tooltip("GameObject to Destroy")]
+    public List<GameObject> GameObjects = new List<GameObject>();
+
+    private Dictionary<int, GameObject> destroyBlocks = new Dictionary<int, GameObject>();
+
+
+    public void MakeDictionary()
+    {
+
+        for (int i = 0; i < Remaining_Targets.Count && i < GameObjects.Count; i++)
+        {
+            destroyBlocks.Add(Remaining_Targets[i], GameObjects[i]);
+        }
+    }
+
+
+
 
     IEnumerator Start()
     {
-   
+
+        MakeDictionary();
+
+        UnityEngine.Debug.Log(destroyBlocks);
+
         TimeManager.OnSetTime(totalTimeInSecs, isTimed, gameMode);
         
         yield return new WaitForEndOfFrame();
@@ -44,6 +76,14 @@ public class ObjectiveReachTargets : Objective
 
         m_PickupTotal = NumberOfPickupsTotal - remaining;
         int targetRemaining = mustCollectAllPickups ? remaining : pickupsToCompleteObjective - m_PickupTotal;
+
+        if (destroyBlocks.ContainsKey(targetRemaining))
+        {
+            
+            Destroy(destroyBlocks[targetRemaining]);
+            if (displayObject!=null)
+                displayObject.GetComponent<DisplayOnEvent>().turnOn();
+        }
 
         // update the objective text according to how many enemies remain to kill
         if (targetRemaining == 0)
