@@ -24,7 +24,7 @@ public class JumpInput : MonoBehaviour
         }
         else
         {
-            Debug.Log("not grounded");
+            //Debug.Log("not grounded");
             isGrounded = false;
         }
     }
@@ -33,7 +33,7 @@ public class JumpInput : MonoBehaviour
     {
         if(isJumping)
         {
-            Debug.Log("Space key was pressed.");
+            //Debug.Log("Space key was pressed.");
             rb.velocity += (Vector3.up * jumpForce);
             isJumping = false;
         }

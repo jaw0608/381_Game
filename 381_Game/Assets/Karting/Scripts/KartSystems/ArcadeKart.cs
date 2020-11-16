@@ -351,7 +351,7 @@ namespace KartGame.KartSystems
 
             ApplyAngularSuspension();
 
-            if (GroundPercent > 0)
+            if (GroundPercent >= 0)
             {
                 // manual angular velocity coefficient
                 float angularVelocitySteering = .4f;

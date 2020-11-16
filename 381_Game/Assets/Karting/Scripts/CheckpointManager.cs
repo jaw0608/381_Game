@@ -28,22 +28,14 @@ public class CheckpointManager : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void OnCollisionEnter(Collision collisionInfo)
+    void OnTriggerEnter(Collider collider)
     {
-        if (collisionInfo.collider.name.Contains(targetName))
+        
+        if (collider.name.Contains(targetName))
         {
-            lastCheckPoint = collisionInfo.collider.gameObject;
+            
+            lastCheckPoint = collider.gameObject;
         }
-    }
-
-    void OnCollisionStay(Collision collisionInfo)
-    {
-
-    }
-
-    void OnCollisionExit(Collision collisionInfo)
-    {
-
     }
 
     void Update()
@@ -56,6 +48,7 @@ public class CheckpointManager : MonoBehaviour
 
     public void Respawn()
     {
+        Debug.Log("Respawned to" + lastCheckPoint.name);
         //teleport and face same orientation as object. set velocity to 0.
         this.gameObject.transform.position = lastCheckPoint.transform.position;
         this.gameObject.transform.rotation = lastCheckPoint.transform.rotation;
