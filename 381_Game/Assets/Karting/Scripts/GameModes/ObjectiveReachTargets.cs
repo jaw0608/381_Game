@@ -23,7 +23,7 @@ public class ObjectiveReachTargets : Objective
 
 
     [Header("Destroy at Target Reached")]
-    [Tooltip("Destroy Gameobject below when there at this many targets remaining")]
+    [Tooltip("Destroy Gameobject below when this many targets have been destroyed")]
     public List<int> Remaining_Targets = new List<int>();
 
     [Tooltip("GameObject to Destroy")]
@@ -77,10 +77,10 @@ public class ObjectiveReachTargets : Objective
         m_PickupTotal = NumberOfPickupsTotal - remaining;
         int targetRemaining = mustCollectAllPickups ? remaining : pickupsToCompleteObjective - m_PickupTotal;
 
-        if (destroyBlocks.ContainsKey(targetRemaining))
+        if (destroyBlocks.ContainsKey(m_PickupTotal))
         {
             
-            Destroy(destroyBlocks[targetRemaining]);
+            Destroy(destroyBlocks[m_PickupTotal]);
             if (displayObject!=null)
                 displayObject.GetComponent<DisplayOnEvent>().turnOn();
         }

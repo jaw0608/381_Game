@@ -22,6 +22,9 @@ public class CheckpointManager : MonoBehaviour
 
     private Rigidbody rb;
 
+    [Tooltip("GameObject that holds display message to trigger when an blockade is destroyed")]
+    public GameObject displayObject = null;
+
     void Start()
     {
         lastCheckPoint = GameObject.Find(targetName);
@@ -31,10 +34,12 @@ public class CheckpointManager : MonoBehaviour
     void OnTriggerEnter(Collider collider)
     {
         
-        if (collider.name.Contains(targetName))
+        if (collider.name.Contains(targetName) && collider.gameObject!=lastCheckPoint)
         {
             
             lastCheckPoint = collider.gameObject;
+            if (displayObject != null)
+                displayObject.GetComponent<DisplayOnEvent>().turnOn();
         }
     }
 
@@ -53,5 +58,6 @@ public class CheckpointManager : MonoBehaviour
         this.gameObject.transform.position = lastCheckPoint.transform.position;
         this.gameObject.transform.rotation = lastCheckPoint.transform.rotation;
         rb.velocity = new Vector3(0, 0, 0);
+        rb.angularVelocity = new Vector3(0, 0, 0);
     }
 }
