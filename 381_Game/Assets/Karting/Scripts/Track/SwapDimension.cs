@@ -8,15 +8,27 @@ public class SwapDimension : MonoBehaviour {
     public Color AColor;
     public GameObject DimensionB;
     public Color BColor;
+    public GameObject Blockades;
     private bool onA;
     private bool wasPressed;
     private bool isPressed;
 
+    public GameObject CameraObject;
+    public GameObject GroundPlane;
+
+    private Renderer GroundRenderer;
+    private Camera Cam;
+
     // Start is called before the first frame update
     void Start()
     {
+        Cam = CameraObject.GetComponent<Camera>();
+        GroundRenderer = GroundPlane.GetComponent<Renderer>();
         onA = true;
-        RenderSettings.skybox.SetColor("_Tint", AColor);
+        Cam.backgroundColor = AColor;
+        GroundRenderer.material.color = AColor;
+        changeChildren(DimensionA, BColor);
+        changeChildren(DimensionB, AColor);
         wasPressed = false;
         isPressed = false;
         DimensionB.SetActive(false);
@@ -36,10 +48,31 @@ public class SwapDimension : MonoBehaviour {
             DimensionA.SetActive(onA);
             DimensionB.SetActive(!onA);
             if (onA)
-                RenderSettings.skybox.SetColor("_Tint", AColor);
+            {
+                Cam.backgroundColor = AColor;
+                GroundRenderer.material.color = AColor;
+            }
+                
             else
-                RenderSettings.skybox.SetColor("_Tint", BColor);
+            {
+                Cam.backgroundColor = BColor;
+                GroundRenderer.material.color = BColor;
+            }
 
         }
     }
+
+    private void changeChildren(GameObject obj, Color color)
+    {
+        foreach (Transform child in obj.transform)
+        {
+            changeChildren(child.gameObject, color);
+        }
+        Renderer r = obj.GetComponent<Renderer>();
+        if (r != null)
+        {
+            r.material.color = color;
+        }
+    }
+
 }

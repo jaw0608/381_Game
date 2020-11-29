@@ -18,26 +18,31 @@ public class ObjectiveReachTargets : Objective
     public int notificationPickupsRemainingThreshold = 1;
 
     [Header("Display Message")]
-    [Tooltip("GameObject that holds display message to trigger when an blockade is destroyed")]
+    [Tooltip("GameObject that holds display message to trigger when a new path is opened")]
     public GameObject displayObject = null;
 
 
-    [Header("Destroy at Target Reached")]
-    [Tooltip("Destroy Gameobject below when this many targets have been destroyed")]
-    public List<int> Remaining_Targets = new List<int>();
+    [Header("Open Paths after this many objectives are picked up")]
+    [Tooltip("Open Path below when this many objectives picked up")]
+    public List<int> PickedUp_Objectives = new List<int>();
 
-    [Tooltip("GameObject to Destroy")]
+    [Tooltip("Path gameobject to open")]
     public List<GameObject> GameObjects = new List<GameObject>();
 
-    private Dictionary<int, GameObject> destroyBlocks = new Dictionary<int, GameObject>();
+    private Dictionary<int, List<GameObject>> paths = new Dictionary<int, List<GameObject>>();
 
 
     public void MakeDictionary()
     {
 
-        for (int i = 0; i < Remaining_Targets.Count && i < GameObjects.Count; i++)
+        for (int i = 0; i < PickedUp_Objectives.Count && i < GameObjects.Count; i++)
         {
-            destroyBlocks.Add(Remaining_Targets[i], GameObjects[i]);
+            if (paths.ContainsKey(PickedUp_Objectives[i]) == false)
+            {
+                paths.Add(PickedUp_Objectives[i], new List<GameObject>());
+            }
+            paths[PickedUp_Objectives[i]].Add(GameObjects[i]);
+            GameObjects[i].SetActive(false);
         }
     }
 
@@ -48,8 +53,6 @@ public class ObjectiveReachTargets : Objective
     {
 
         MakeDictionary();
-
-        UnityEngine.Debug.Log(destroyBlocks);
 
         TimeManager.OnSetTime(totalTimeInSecs, isTimed, gameMode);
         
@@ -77,12 +80,25 @@ public class ObjectiveReachTargets : Objective
         m_PickupTotal = NumberOfPickupsTotal - remaining;
         int targetRemaining = mustCollectAllPickups ? remaining : pickupsToCompleteObjective - m_PickupTotal;
 
-        if (destroyBlocks.ContainsKey(m_PickupTotal))
+        if (paths.ContainsKey(m_PickupTotal))
         {
-            
-            Destroy(destroyBlocks[m_PickupTotal]);
+
+            for (int i = 0; i < paths[m_PickupTotal].Count; i++)
+            {
+                paths[m_PickupTotal][i].SetActive(true);
+            }
+            paths.Remove(m_PickupTotal);
+                
             if (displayObject!=null)
                 displayObject.GetComponent<DisplayOnEvent>().turnOn();
+        }
+
+        foreach (int key in paths.Keys)
+        {
+            for (int i=0; i<paths[key].Count; i++)
+            {
+                paths[key][i].SetActive(false);
+            }
         }
 
         // update the objective text according to how many enemies remain to kill

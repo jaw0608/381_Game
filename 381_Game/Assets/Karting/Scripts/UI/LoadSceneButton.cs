@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using static LevelManager;
 
 namespace KartGame.UI
 {
@@ -10,7 +11,9 @@ namespace KartGame.UI
 
         public void LoadTargetScene() 
         {
-            SceneManager.LoadSceneAsync(SceneName);
+            LevelManager.SetLevel(SceneName);
+            LevelManager.GoToScene();
+            //SceneManager.LoadSceneAsync(SceneName);
         }
     }
 }
