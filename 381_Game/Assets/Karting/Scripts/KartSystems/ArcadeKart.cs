@@ -84,6 +84,7 @@ namespace KartGame.KartSystems
         public Vector2 Input       { get; private set; }
         public float AirPercent    { get; private set; }
         public float GroundPercent { get; private set; }
+        public bool wasAirborne    { get; private set; }
 
         public ArcadeKart.Stats baseStats = new ArcadeKart.Stats
         {
@@ -351,7 +352,20 @@ namespace KartGame.KartSystems
 
             ApplyAngularSuspension();
 
-            if (GroundPercent >= 0)
+            if (GroundPercent == 0f) //in air weight shifting
+            {
+
+                Quaternion rotation = Rigidbody.rotation;
+                Quaternion newRotation = rotation * Quaternion.Euler(accelInput, 0, -1 * turnInput);
+                // apply the angular velocity
+                Rigidbody.rotation = newRotation;
+                if (wasAirborne == false)
+                    Rigidbody.angularVelocity = new Vector3(0, 0, 0);
+                wasAirborne = true;
+            }
+            else wasAirborne = false;
+
+            if (GroundPercent > 0)
             {
                 // manual angular velocity coefficient
                 float angularVelocitySteering = .4f;
