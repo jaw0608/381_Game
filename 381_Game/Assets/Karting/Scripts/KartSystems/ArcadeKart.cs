@@ -84,6 +84,7 @@ namespace KartGame.KartSystems
         public Vector2 Input       { get; private set; }
         public float AirPercent    { get; private set; }
         public float GroundPercent { get; private set; }
+        public float PrevGroundPercent { get; private set; }
         public bool wasAirborne    { get; private set; }
 
         public ArcadeKart.Stats baseStats = new ArcadeKart.Stats
@@ -114,6 +115,10 @@ namespace KartGame.KartSystems
         [Tooltip("How far to raycast when checking for ground.")]
         public float RaycastDist = 0.3f;
 
+        //So we don't hit the raycast on Kart..
+        private LayerMask layerMask;
+
+
         [Tooltip("How high to keep the kart above the ground.")]
         public float MinHeightThreshold = 0.02f;
 
@@ -138,6 +143,7 @@ namespace KartGame.KartSystems
             m_Inputs = GetComponents<IInput>();
             suspensionNeutralPos = SuspensionBody.transform.localPosition;
             suspensionNeutralRot = SuspensionBody.transform.localRotation;
+            layerMask = ~LayerMask.GetMask("Kart");
         }
 
         void FixedUpdate()
@@ -251,7 +257,9 @@ namespace KartGame.KartSystems
             for (int i = 0; i < Wheels.Length; i++)
             {
                 Transform current = Wheels[i];
-                groundedCount += Physics.Raycast(current.position, Vector3.down, out RaycastHit hit, RaycastDist) ? 1 : 0;
+
+                int res = Physics.Raycast(current.position, Vector3.down, out RaycastHit hit, RaycastDist,layerMask) ? 1 : 0;
+                groundedCount += res;
 
                 if (hit.distance > 0)
                 {
@@ -352,6 +360,9 @@ namespace KartGame.KartSystems
 
             ApplyAngularSuspension();
 
+            if (GroundPercent!=PrevGroundPercent)
+                Debug.Log("GroundPercent: " + GroundPercent);
+            PrevGroundPercent = GroundPercent;
             if (GroundPercent == 0f) //in air weight shifting
             {
 

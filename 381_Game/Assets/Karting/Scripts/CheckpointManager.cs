@@ -18,12 +18,15 @@ public class CheckpointManager : MonoBehaviour
     [Tooltip("Base name of checkpoint targets")]
     public string targetName;
 
+
     private GameObject lastCheckPoint;
 
     private Rigidbody rb;
 
     [Tooltip("GameObject that holds display message to trigger when an blockade is destroyed")]
     public GameObject displayObject = null;
+
+    public GameObject dependent;
 
     void Start()
     {
@@ -59,5 +62,18 @@ public class CheckpointManager : MonoBehaviour
         this.gameObject.transform.rotation = lastCheckPoint.transform.rotation;
         rb.velocity = new Vector3(0, 0, 0);
         rb.angularVelocity = new Vector3(0, 0, 0);
+        RespawnDependent();
+    }
+
+    public void RespawnDependent()
+    {
+        if (dependent != null)
+        {
+            dependent.transform.position = lastCheckPoint.transform.position;
+            dependent.transform.rotation = lastCheckPoint.transform.rotation;
+            Rigidbody rbD = dependent.GetComponent<Rigidbody>();
+            rbD.velocity = new Vector3(0, 0, 0);
+            rbD.angularVelocity = new Vector3(0, 0, 0);
+        }
     }
 }
