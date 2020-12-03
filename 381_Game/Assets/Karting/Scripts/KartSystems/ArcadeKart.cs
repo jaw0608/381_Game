@@ -128,6 +128,8 @@ namespace KartGame.KartSystems
         Vector3 suspensionNeutralPos;
         Quaternion suspensionNeutralRot;
 
+        Quaternion desiredRotation;
+
         // the input sources that can control the kart
         IInput[] m_Inputs;
 
@@ -144,6 +146,7 @@ namespace KartGame.KartSystems
             suspensionNeutralPos = SuspensionBody.transform.localPosition;
             suspensionNeutralRot = SuspensionBody.transform.localRotation;
             layerMask = ~LayerMask.GetMask("Kart");
+            desiredRotation = Quaternion.Euler(0, 0, 0);
         }
 
         void FixedUpdate()
@@ -357,26 +360,10 @@ namespace KartGame.KartSystems
             }
 
             Rigidbody.velocity = adjustedVelocity;
-
+          
             ApplyAngularSuspension();
 
-            if (GroundPercent!=PrevGroundPercent)
-                Debug.Log("GroundPercent: " + GroundPercent);
-            PrevGroundPercent = GroundPercent;
-            if (GroundPercent == 0f) //in air weight shifting
-            {
-
-                Quaternion rotation = Rigidbody.rotation;
-                Quaternion newRotation = rotation * Quaternion.Euler(accelInput, 0, -1 * turnInput);
-                // apply the angular velocity
-                Rigidbody.rotation = newRotation;
-                if (wasAirborne == false)
-                    Rigidbody.angularVelocity = new Vector3(0, 0, 0);
-                wasAirborne = true;
-            }
-            else wasAirborne = false;
-
-            if (GroundPercent > 0)
+            if (GroundPercent >= 0)
             {
                 // manual angular velocity coefficient
                 float angularVelocitySteering = .4f;
@@ -416,6 +403,26 @@ namespace KartGame.KartSystems
                 // apply the damped velocity
                 Rigidbody.velocity = latFrictionDampedVelocity;
             }
+
+
+            //Lock rotations.
+
+            //Try and get raycast. If it hits, we will shoot towards this transform instead
+            int res = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, RaycastDist, layerMask) ? 1 : 0;
+            float desZ = 0;
+            float desX = 0;
+            if (hit.collider)
+            {
+                desZ = hit.collider.transform.rotation.z;
+                desX = hit.collider.transform.rotation.x;
+            }
+            Quaternion rotation = Rigidbody.rotation;
+            Vector3 desiredRotationEuler = rotation.eulerAngles;
+            desiredRotationEuler.z = desZ;
+            desiredRotationEuler.x = desX;
+            desiredRotation = Quaternion.Euler(desiredRotationEuler);
+            Quaternion rot = Quaternion.Slerp(rotation, desiredRotation, 15 * Time.deltaTime);
+            Rigidbody.rotation = rot;
         }
 
         void ApplyAngularSuspension()
