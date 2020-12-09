@@ -18,9 +18,9 @@ public class CheckpointManager : MonoBehaviour
     [Tooltip("Base name of checkpoint targets")]
     public string targetName;
 
-    private GameObject lastCheckPoint;
+    public GameObject lastCheckPoint;
 
-    private Rigidbody rb;
+    public Rigidbody rb;
 
     void Start()
     {
@@ -28,11 +28,12 @@ public class CheckpointManager : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void OnCollisionEnter(Collision collisionInfo)
+    void OnTriggerEnter(Collider collider)
     {
-        if (collisionInfo.collider.name.Contains(targetName))
+        if (collider.name.Contains(targetName))
         {
-            lastCheckPoint = collisionInfo.collider.gameObject;
+            Debug.Log(collider.name);
+            lastCheckPoint = collider.gameObject;
         }
     }
 
