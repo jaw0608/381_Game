@@ -12,6 +12,9 @@ public class MinimapFollower : MonoBehaviour
     public string SwitchKey = null;
     private bool Down = false;
 
+    public bool changeCamera = false;
+    public float GroundLevel = -3;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,5 +42,12 @@ public class MinimapFollower : MonoBehaviour
         }
         
         transform.position = pos;
+
+        //update far plane
+        if (GetComponent<Camera>()!=null && changeCamera)
+        {
+            GetComponent<Camera>().farClipPlane = pos.y - GroundLevel;
+        }
+
     }
 }

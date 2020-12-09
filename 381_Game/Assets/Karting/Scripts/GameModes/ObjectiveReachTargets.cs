@@ -29,6 +29,12 @@ public class ObjectiveReachTargets : Objective
     [Tooltip("Path gameobject to open")]
     public List<GameObject> GameObjects = new List<GameObject>();
 
+    [Header("SwapMeter")]
+    [Tooltip("Object that contains the SwapMeter script")]
+    public GameObject SwapMeterObject;
+    [Tooltip("Value to add when meter when an object is picked up")]
+    public int AddOnCollect;
+
     private Dictionary<int, List<GameObject>> paths = new Dictionary<int, List<GameObject>>();
 
 
@@ -79,7 +85,7 @@ public class ObjectiveReachTargets : Objective
 
         m_PickupTotal = NumberOfPickupsTotal - remaining;
         int targetRemaining = mustCollectAllPickups ? remaining : pickupsToCompleteObjective - m_PickupTotal;
-
+        SwapMeterObject.GetComponent<SwapMeter>().AddTo(AddOnCollect);
         if (paths.ContainsKey(m_PickupTotal))
         {
 

@@ -363,6 +363,26 @@ namespace KartGame.KartSystems
           
             ApplyAngularSuspension();
 
+
+            //apply in air weight shifting
+            //if (GroundPercent == 0f) //in air weight shifting
+            //{
+            //    if (wasAirborne == false)
+            //    {
+            //        Rigidbody.angularVelocity = new Vector3(0, 0, 0);
+            //        wasAirborne = true;
+            //    }
+            //    else
+            //    {
+            //        Quaternion rotation = Rigidbody.rotation;
+            //        Vector3 vel = new Vector3(0, turnInput * 1, -1 * accelInput);
+            //        Vector3 moveT = Vector3.MoveTowards(Rigidbody.angularVelocity, vel, Time.deltaTime);
+            //        apply the angular velocity
+            //        Rigidbody.angularVelocity = moveT;
+            //    }
+            //}
+            //else wasAirborne = false;
+
             if (GroundPercent >= 0)
             {
                 // manual angular velocity coefficient
@@ -405,24 +425,14 @@ namespace KartGame.KartSystems
             }
 
 
-            //Lock rotations.
+            //Rigidbody helps a lot with this, but the extra X rotation is needed to fix issues where it locks in a bad place
+            //after a rotation
 
-            //Try and get raycast. If it hits, we will shoot towards this transform instead
-            int res = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, RaycastDist, layerMask) ? 1 : 0;
-            float desZ = 0;
-            float desX = 0;
-            if (hit.collider)
-            {
-                desZ = hit.collider.transform.rotation.z;
-                desX = hit.collider.transform.rotation.x;
-            }
-            Quaternion rotation = Rigidbody.rotation;
-            Vector3 desiredRotationEuler = rotation.eulerAngles;
-            desiredRotationEuler.z = desZ;
-            desiredRotationEuler.x = desX;
-            desiredRotation = Quaternion.Euler(desiredRotationEuler);
-            Quaternion rot = Quaternion.Slerp(rotation, desiredRotation, 15 * Time.deltaTime);
-            Rigidbody.rotation = rot;
+            ////Try and match location of an object we are on. Helps
+            ////with bouncing around because we do that way too much.
+
+            ////Try and get raycast hit. If it hits, we will just check out max rotations
+
         }
 
         void ApplyAngularSuspension()

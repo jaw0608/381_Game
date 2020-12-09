@@ -19,6 +19,9 @@ public class SwapDimension : MonoBehaviour {
     private Renderer GroundRenderer;
     private Camera Cam;
 
+    private SwapMeter swapBar;
+    private GameFlowManager gameFlow;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,11 +30,13 @@ public class SwapDimension : MonoBehaviour {
         onA = true;
         Cam.backgroundColor = AColor;
         GroundRenderer.material.color = AColor;
-        changeChildren(DimensionA, BColor);
-        changeChildren(DimensionB, AColor);
+        changeChildren(DimensionA, BColor,"Track");
+        changeChildren(DimensionB, AColor,"Minimap");
         wasPressed = false;
         isPressed = false;
-        DimensionB.SetActive(false);
+        swapBar = this.GetComponent<SwapMeter>();
+        gameFlow = this.GetComponent<GameFlowManager>();
+
     }
 
     // Update is called once per frame
@@ -43,31 +48,44 @@ public class SwapDimension : MonoBehaviour {
         //pressed but not still being held down
         if (isPressed==true && wasPressed == false)
         {
+            if (swapBar != null)
+            {
+                swapBar.Decrement();
+                if (swapBar.isEmpty)
+                {
+                    gameFlow.IsOverEmpty = true;
+                }
+            }
             //make inactive and scaled to zero
             onA = !onA;
-            DimensionA.SetActive(onA);
-            DimensionB.SetActive(!onA);
+            //DimensionA.SetActive(onA);
+            //DimensionB.SetActive(!onA);
             if (onA)
             {
                 Cam.backgroundColor = AColor;
                 GroundRenderer.material.color = AColor;
+                changeChildren(DimensionA, BColor, "Track");
+                changeChildren(DimensionB, AColor, "Minimap");
             }
                 
             else
             {
                 Cam.backgroundColor = BColor;
                 GroundRenderer.material.color = BColor;
+                changeChildren(DimensionA, BColor, "Minimap");
+                changeChildren(DimensionB, AColor, "Track");
             }
 
         }
     }
 
-    private void changeChildren(GameObject obj, Color color)
+    private void changeChildren(GameObject obj, Color color,string layer)
     {
         foreach (Transform child in obj.transform)
         {
-            changeChildren(child.gameObject, color);
+            changeChildren(child.gameObject, color,layer);
         }
+        obj.layer = LayerMask.NameToLayer(layer);
         Renderer r = obj.GetComponent<Renderer>();
         if (r != null)
         {
