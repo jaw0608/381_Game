@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class JumpInput : MonoBehaviour
 {
@@ -12,15 +13,37 @@ public class JumpInput : MonoBehaviour
     public bool isGrounded;
     public float distGround = 1f;
     Rigidbody rb;
+    public CinemachineVirtualCamera cam;
+    private Vector3 StartPosition;
+    private Vector3 FlipPosition;
+    private Vector3 destPosition;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         jump = new Vector3(0.0f, 10.0f, 0.0f);
+        StartPosition = cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
+        FlipPosition = StartPosition;
+        FlipPosition.y = -1 * FlipPosition.y;
+        destPosition = StartPosition;
     }
+
+    void SetPosition(Vector3 position)
+    {
+        cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset = position;
+    }
+
+    Vector3 GetPosition()
+    {
+        return cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
+    }
+
     void GroundCheck(){
         if(gravityOn)
         {
+            destPosition = StartPosition;
+
             if(Physics.Raycast(transform.position, Vector3.down, distGround))
             {
                 //Debug.Log("grounded");
@@ -35,13 +58,15 @@ public class JumpInput : MonoBehaviour
         else
         {
             //Debug.Log("upside down");
-            if(Physics.Raycast(transform.position, Vector3.up, distGround))
+            if (Physics.Raycast(transform.position, Vector3.up, distGround))
             {
+                destPosition = FlipPosition;
                 //Debug.Log("grounded");
                 isGrounded = true;
             }
             else
             {
+                destPosition = StartPosition;
                 //Debug.Log("not grounded");
                 isGrounded = false;    
             }
@@ -50,6 +75,7 @@ public class JumpInput : MonoBehaviour
     void reversedGroundCheck(){
         if(Physics.Raycast(transform.position, Vector3.up, distGround))
         {
+            destPosition = FlipPosition;
             //Debug.Log("grounded");
             isGrounded = true;
         }
@@ -97,5 +123,8 @@ public class JumpInput : MonoBehaviour
             gravitySwitch = true;
             gravityOn = !gravityOn;
         }
+
+        Vector3 pos = Vector3.MoveTowards(destPosition, GetPosition(), Time.deltaTime/100);
+        SetPosition(pos);
     }
 }

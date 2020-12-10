@@ -261,7 +261,18 @@ namespace KartGame.KartSystems
             {
                 Transform current = Wheels[i];
 
-                int res = Physics.Raycast(current.position, Vector3.down, out RaycastHit hit, RaycastDist,layerMask) ? 1 : 0;
+                bool direction = this.gameObject.GetComponent<JumpInput>().gravityOn;
+                int res = 0;
+                RaycastHit hit;
+                if (direction)
+                {
+                    res = Physics.Raycast(current.position, Vector3.down, out hit, RaycastDist, layerMask) ? 1 : 0;
+                }
+                else
+                {
+                    res = Physics.Raycast(current.position, Vector3.up, out hit, RaycastDist, layerMask) ? 1 : 0;
+                }
+                    
                 groundedCount += res;
 
                 if (hit.distance > 0)
@@ -407,22 +418,23 @@ namespace KartGame.KartSystems
 
             //Lock rotations.
 
-            //Try and get raycast. If it hits, we will shoot towards this transform instead
+            ////Try and get raycast. If it hits, we will shoot towards this transform instead
             int res = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, RaycastDist, layerMask) ? 1 : 0;
-            float desZ = 0;
-            float desX = 0;
             if (hit.collider)
             {
+                float desZ = 0;
+                float desX = 0;
                 desZ = hit.collider.transform.rotation.z;
                 desX = hit.collider.transform.rotation.x;
+                Quaternion rotation = Rigidbody.rotation;
+                Vector3 desiredRotationEuler = rotation.eulerAngles;
+                desiredRotationEuler.z = desZ;
+                desiredRotationEuler.x = desX;
+                desiredRotation = Quaternion.Euler(desiredRotationEuler);
+                Quaternion rot = Quaternion.Slerp(rotation, desiredRotation, 15 * Time.deltaTime);
+                Rigidbody.rotation = rot;
             }
-            Quaternion rotation = Rigidbody.rotation;
-            Vector3 desiredRotationEuler = rotation.eulerAngles;
-            desiredRotationEuler.z = desZ;
-            desiredRotationEuler.x = desX;
-            desiredRotation = Quaternion.Euler(desiredRotationEuler);
-            Quaternion rot = Quaternion.Slerp(rotation, desiredRotation, 15 * Time.deltaTime);
-            Rigidbody.rotation = rot;
+            
         }
 
         void ApplyAngularSuspension()
