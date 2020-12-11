@@ -26,7 +26,7 @@ public class CheckpointManager : MonoBehaviour
     [Tooltip("GameObject that holds display message to trigger when an blockade is destroyed")]
     public GameObject displayObject = null;
 
-    public GameObject dependent;
+    public AudioSource onPassCheckpoint;
 
     void Start()
     {
@@ -41,6 +41,7 @@ public class CheckpointManager : MonoBehaviour
         {
             
             lastCheckPoint = collider.gameObject;
+            if (onPassCheckpoint != null) onPassCheckpoint.Play(0);
             if (displayObject != null)
                 displayObject.GetComponent<DisplayOnEvent>().turnOn();
         }
@@ -62,18 +63,5 @@ public class CheckpointManager : MonoBehaviour
         this.gameObject.transform.rotation = lastCheckPoint.transform.rotation;
         rb.velocity = new Vector3(0, 0, 0);
         rb.angularVelocity = new Vector3(0, 0, 0);
-        RespawnDependent();
-    }
-
-    public void RespawnDependent()
-    {
-        if (dependent != null)
-        {
-            dependent.transform.position = lastCheckPoint.transform.position;
-            dependent.transform.rotation = lastCheckPoint.transform.rotation;
-            Rigidbody rbD = dependent.GetComponent<Rigidbody>();
-            rbD.velocity = new Vector3(0, 0, 0);
-            rbD.angularVelocity = new Vector3(0, 0, 0);
-        }
     }
 }

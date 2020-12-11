@@ -29,6 +29,8 @@ public class ObjectiveReachTargets : Objective
     [Tooltip("Path gameobject to open")]
     public List<GameObject> GameObjects = new List<GameObject>();
 
+    public AudioSource riftSound;
+
     [Header("SwapMeter")]
     [Tooltip("Object that contains the SwapMeter script")]
     public GameObject SwapMeterObject;
@@ -94,7 +96,7 @@ public class ObjectiveReachTargets : Objective
                 paths[m_PickupTotal][i].SetActive(true);
             }
             paths.Remove(m_PickupTotal);
-                
+            if (riftSound!=null) riftSound.Play(0);
             if (displayObject!=null)
                 displayObject.GetComponent<DisplayOnEvent>().turnOn();
         }

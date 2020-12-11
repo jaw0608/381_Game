@@ -18,31 +18,35 @@ public class JumpInput : MonoBehaviour
     private Vector3 FlipPosition;
     private Vector3 destPosition;
 
+    public bool GravitySwitchLevel = false;
+
     // Start is called before the first frame update
+    
     void Start()
     {
+        // cam = GetComponent<CinemachineVirtualCamera>();
         rb = GetComponent<Rigidbody>();
         jump = new Vector3(0.0f, 10.0f, 0.0f);
-        StartPosition = cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
-        FlipPosition = StartPosition;
-        FlipPosition.y = -1 * FlipPosition.y;
-        destPosition = StartPosition;
+        // StartPosition = cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
+        // FlipPosition = StartPosition;
+        // FlipPosition.y = -1 * FlipPosition.y;
+        // destPosition = StartPosition;
     }
 
-    void SetPosition(Vector3 position)
-    {
-        cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset = position;
-    }
+    // void SetPosition(Vector3 position)
+    // {
+    //     cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset = position;
+    // }
 
-    Vector3 GetPosition()
-    {
-        return cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
-    }
+    // public Vector3 GetPosition()
+    // {
+    //     return cam.GetCinemachineComponent<CinemachineTransposer>().m_FollowOffset;
+    // }
 
     void GroundCheck(){
         if(gravityOn)
         {
-            destPosition = StartPosition;
+            // destPosition = StartPosition;
 
             if(Physics.Raycast(transform.position, Vector3.down, distGround))
             {
@@ -55,18 +59,18 @@ public class JumpInput : MonoBehaviour
                 isGrounded = false;
             }
         }
-        else
+        else if(GravitySwitchLevel==true)
         {
             //Debug.Log("upside down");
             if (Physics.Raycast(transform.position, Vector3.up, distGround))
             {
-                destPosition = FlipPosition;
+                // destPosition = FlipPosition;
                 //Debug.Log("grounded");
                 isGrounded = true;
             }
             else
             {
-                destPosition = StartPosition;
+                // destPosition = StartPosition;
                 //Debug.Log("not grounded");
                 isGrounded = false;    
             }
@@ -75,7 +79,7 @@ public class JumpInput : MonoBehaviour
     void reversedGroundCheck(){
         if(Physics.Raycast(transform.position, Vector3.up, distGround))
         {
-            destPosition = FlipPosition;
+            // destPosition = FlipPosition;
             //Debug.Log("grounded");
             isGrounded = true;
         }
@@ -88,11 +92,14 @@ public class JumpInput : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(gravitySwitch)
+        if(gravitySwitch && GravitySwitchLevel==true)
         {
             this.gameObject.transform.Rotate(0, 0, 180);
             Physics.gravity *= -1;
             gravitySwitch = false;
+            rb.velocity = new Vector3(0, 0, 0);
+            //cam.transform.rotation *= Quaternion.Euler(0, 180, 0);
+            
         }
         if(isJumping)
         {
@@ -102,7 +109,7 @@ public class JumpInput : MonoBehaviour
                 rb.velocity += (Vector3.up * jumpForce);
                 isJumping = false;
             }
-            else
+            else if (GravitySwitchLevel==true)
             {
                 Debug.Log("upside down jump");
                 rb.velocity += (Vector3.down * jumpForce);
@@ -118,13 +125,13 @@ public class JumpInput : MonoBehaviour
         {
             isJumping = true;
         }
-        if(Input.GetKeyDown(KeyCode.G))
+        if(Input.GetKeyDown(KeyCode.Return) && GravitySwitchLevel==true)
         {
             gravitySwitch = true;
             gravityOn = !gravityOn;
         }
 
-        Vector3 pos = Vector3.MoveTowards(destPosition, GetPosition(), Time.deltaTime/100);
-        SetPosition(pos);
+        // Vector3 pos = Vector3.MoveTowards(destPosition, GetPosition(), Time.deltaTime/100);
+        // SetPosition(pos);
     }
 }

@@ -19,6 +19,8 @@ public class SwapDimension : MonoBehaviour {
     private Renderer GroundRenderer;
     private Camera Cam;
 
+    public bool SwapLevel = true;
+
     private SwapMeter swapBar;
     private GameFlowManager gameFlow;
 
@@ -30,8 +32,9 @@ public class SwapDimension : MonoBehaviour {
         onA = true;
         Cam.backgroundColor = AColor;
         GroundRenderer.material.color = AColor;
+        changeChildren(DimensionB, AColor, "Minimap");
         changeChildren(DimensionA, BColor,"Track");
-        changeChildren(DimensionB, AColor,"Minimap");
+        
         wasPressed = false;
         isPressed = false;
         swapBar = this.GetComponent<SwapMeter>();
@@ -46,7 +49,7 @@ public class SwapDimension : MonoBehaviour {
         isPressed = Input.GetKeyDown(KeyCode.Return);
 
         //pressed but not still being held down
-        if (isPressed==true && wasPressed == false)
+        if (isPressed==true && wasPressed == false && SwapLevel==true)
         {
             if (swapBar != null)
             {
@@ -64,8 +67,9 @@ public class SwapDimension : MonoBehaviour {
             {
                 Cam.backgroundColor = AColor;
                 GroundRenderer.material.color = AColor;
-                changeChildren(DimensionA, BColor, "Track");
                 changeChildren(DimensionB, AColor, "Minimap");
+                changeChildren(DimensionA, BColor, "Track");
+                
             }
                 
             else
